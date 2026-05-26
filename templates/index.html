@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой вишлист</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎁 Мой вишлист</h1>
+        
+        <div class="total">
+            <strong>Общая стоимость:</strong> {{ printf "%.2f" .Total }} ₽
+        </div>
+        
+        <div class="wishlist-grid">
+            {{ range .Items }}
+            <div class="wish-card priority-{{ .Priority }}">
+                <img src="{{ .ImageURL }}" alt="{{ .Name }}">
+                <h3>{{ .Name }}</h3>
+                <div class="price">{{ printf "%.2f" .Price }} ₽</div>
+                <div class="priority-badge {{ .Priority }}">{{ .Priority }}</div>
+                <div class="card-actions">
+                    <a href="{{ .Link }}" target="_blank" class="btn-link">Купить</a>
+                    <form method="POST" action="/delete" style="display: inline;">
+                        <input type="hidden" name="id" value="{{ .ID }}">
+                        <button type="submit" class="btn-delete">❌</button>
+                    </form>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+        
+        <h2>Добавить желание</h2>
+        <form method="POST" action="/add" class="add-form">
+            <input type="text" name="name" placeholder="Название" required>
+            <input type="number" step="0.01" name="price" placeholder="Цена" required>
+            <input type="url" name="image_url" placeholder="URL картинки">
+            <input type="url" name="link" placeholder="Ссылка на товар">
+            <select name="priority">
+                <option value="high">Высокий</option>
+                <option value="medium">Средний</option>
+                <option value="low">Низкий</option>
+            </select>
+            <button type="submit">Добавить</button>
+        </form>
+    </div>
+</body>
+</html>
