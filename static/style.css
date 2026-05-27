@@ -49,6 +49,8 @@ h1 {
     height: 150px;
     object-fit: cover;
     border-radius: 8px;
+    display: block; 
+    background-color: #eee;
 }
 
 .price {
