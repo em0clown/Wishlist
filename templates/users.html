@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пользователи · Wishlist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="shell">
+        <nav class="topbar">
+            <a class="brand" href="/">Wishlist</a>
+            <div class="nav-links">
+                <a class="nav-link" href="/">Мой список</a>
+                <a class="nav-link active" href="/users">Люди</a>
+            </div>
+            <div class="account">
+                <span class="avatar">{{ initial .CurrentUser.Username }}</span>
+                <a href="{{ profileURL .CurrentUser.Username }}">{{ .CurrentUser.Username }}</a>
+                <form method="POST" action="/logout">
+                    <button class="text-btn" type="submit">Выйти</button>
+                </form>
+            </div>
+        </nav>
+
+        {{ if .Message }}<div class="notice success">{{ .Message }}</div>{{ end }}
+        {{ if .Error }}<div class="notice error">{{ .Error }}</div>{{ end }}
+
+        <header class="page-head reveal">
+            <div>
+                <p class="label">Социальный раздел</p>
+                <h1>Пользователи</h1>
+                <p class="muted">Смотри открытые вишлисты и подписывайся на друзей.</p>
+            </div>
+        </header>
+
+        <main class="layout users-layout">
+            <section class="main-panel reveal">
+                <div class="section-title">
+                    <h2>Все пользователи</h2>
+                    <span>{{ len .Users }} профилей</span>
+                </div>
+
+                {{ if eq (len .Users) 0 }}
+                <div class="empty-state">
+                    <h3>Пока никого нет</h3>
+                    <p>Создай второй аккаунт в другом браузере или выйди и зарегистрируй друга.</p>
+                </div>
+                {{ else }}
+                <div class="users-grid">
+                    {{ range .Users }}
+                    <article class="user-card reveal">
+                        <a class="user-link" href="{{ profileURL .Username }}">
+                            <span class="avatar big-avatar">{{ initial .Username }}</span>
+                            <span>
+                                <strong>@{{ .Username }}</strong>
+                                <em>{{ .ItemCount }} желаний · {{ money .Total }}</em>
+                            </span>
+                        </a>
+                        <form method="POST" action="{{ if .IsFollowing }}/unfollow{{ else }}/follow{{ end }}">
+                            <input type="hidden" name="username" value="{{ .Username }}">
+                            <input type="hidden" name="next" value="/users">
+                            <button class="small-btn {{ if .IsFollowing }}light{{ end }}" type="submit">
+                                {{ if .IsFollowing }}Отписаться{{ else }}Подписаться{{ end }}
+                            </button>
+                        </form>
+                    </article>
+                    {{ end }}
+                </div>
+                {{ end }}
+            </section>
+
+            <aside class="side-panel reveal">
+                <section class="card">
+                    <div class="section-title compact">
+                        <h2>Мои подписки</h2>
+                    </div>
+                    {{ if eq (len .Following) 0 }}
+                    <p class="muted small">Подписки появятся здесь.</p>
+                    {{ else }}
+                    <div class="people-list">
+                        {{ range .Following }}
+                        <a class="person-row" href="{{ profileURL .Username }}">
+                            <span class="avatar small-avatar">{{ initial .Username }}</span>
+                            <span>
+                                <strong>@{{ .Username }}</strong>
+                                <em>{{ .ItemCount }} желаний</em>
+                            </span>
+                        </a>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                </section>
+            </aside>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

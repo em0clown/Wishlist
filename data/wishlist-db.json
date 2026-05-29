@@ -1,0 +1,49 @@
+{
+  "next_user_id": 3,
+  "next_item_id": 2,
+  "users": [
+    {
+      "id": 1,
+      "username": "em0clown",
+      "password_hash": "pbkdf2$120000$W8ajnylzrdGwFfOM1ZrcWQ$+Z6Y1faZpY0QDboqn5r/cuS11Y1YwS2zS/KSOQhGwEA",
+      "created_at": "2026-05-29T23:59:29.951695593+07:00"
+    },
+    {
+      "id": 2,
+      "username": "tema",
+      "password_hash": "pbkdf2$120000$4eFZBPiUsS97P+OETFsgrA$Rs50lex1KLOkqY6Xofe7goOzPc5gF6TWV1Op1X/Xw9c",
+      "created_at": "2026-05-30T00:06:07.794334727+07:00"
+    }
+  ],
+  "sessions": [
+    {
+      "token": "YT6hntZldcvQGs_pWX9FO4Qk-8benWpstJEkG2ZXf8s",
+      "user_id": 2,
+      "expires_at": "2026-06-06T00:06:07.794831712+07:00"
+    },
+    {
+      "token": "4uB8odgtlUx4piraCvn6oL7VT6CkVn4svuDfNUf1WQE",
+      "user_id": 2,
+      "expires_at": "2026-06-06T00:14:59.699656562+07:00"
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "name": "Tame Impala",
+      "price": 3500,
+      "image_url": "https://70.img.avito.st/image/1/1.kr3aPLa4PlTslfxR8nLehumcPFJknbxcrJg8VmqVNl5s.9VySnxyeQWuXli7XkhlvZoLLadXICT4econ3mboJSIM",
+      "link": "https://www.avito.ru/moskva/kollektsionirovanie/tame_impala_8022012201?context=H4sIAAAAAAAA_wEmANn_YToxOntzOjE6IngiO3M6MTY6ImNsUERIa0JjOXRxWk9Ud1ciO33TJ_4bJgAAAA",
+      "priority": "medium",
+      "created_at": "2026-05-30T00:01:35.895053306+07:00"
+    }
+  ],
+  "follows": [
+    {
+      "follower_id": 2,
+      "following_id": 1,
+      "created_at": "2026-05-30T00:15:21.330886581+07:00"
+    }
+  ]
+}

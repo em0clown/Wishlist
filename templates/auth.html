@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }} · Wishlist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="auth-body">
+    <main class="auth-shell">
+        <section class="auth-card reveal">
+            <a class="brand auth-brand" href="/">Wishlist</a>
+            <p class="label">{{ if eq .Mode "register" }}Новый аккаунт{{ else }}Вход в аккаунт{{ end }}</p>
+            <h1>{{ if eq .Mode "register" }}Создать профиль{{ else }}Добро пожаловать{{ end }}</h1>
+            <p class="muted">
+                {{ if eq .Mode "register" }}Ник будет использоваться для публичной страницы вишлиста.{{ else }}Войди, чтобы открыть свой список и подписки.{{ end }}
+            </p>
+
+            <div class="tabs">
+                <a class="tab {{ if eq .Mode "login" }}active{{ end }}" href="/login">Вход</a>
+                <a class="tab {{ if eq .Mode "register" }}active{{ end }}" href="/register">Регистрация</a>
+            </div>
+
+            {{ if .Error }}<div class="notice error">{{ .Error }}</div>{{ end }}
+
+            <form method="POST" action="/{{ .Mode }}" class="form" data-loading-form>
+                <label>
+                    <span>Никнейм</span>
+                    <input type="text" name="username" autocomplete="username" required minlength="3" maxlength="24" placeholder="goga_01">
+                </label>
+                <label>
+                    <span>Пароль</span>
+                    <input type="password" name="password" autocomplete="{{ if eq .Mode "register" }}new-password{{ else }}current-password{{ end }}" required minlength="6" placeholder="Минимум 6 символов">
+                </label>
+                <button class="primary-btn full" type="submit">
+                    {{ if eq .Mode "register" }}Зарегистрироваться{{ else }}Войти{{ end }}
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

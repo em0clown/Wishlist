@@ -3,48 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой вишлист</title>
+    <title>{{ if .IsOwn }}Мой вишлист{{ else }}Вишлист {{ .Profile.Username }}{{ end }} · Wishlist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🎁 Мой вишлист</h1>
-        
-        <div class="total">
-            <strong>Общая стоимость:</strong> {{ printf "%.2f" .Total }} ₽
-        </div>
-        
-        <div class="wishlist-grid">
-            {{ range .Items }}
-            <div class="wish-card priority-{{ .Priority }}">
-                <img src="{{ .ImageURL }}" alt="{{ .Name }}">
-                <h3>{{ .Name }}</h3>
-                <div class="price">{{ printf "%.2f" .Price }} ₽</div>
-                <div class="priority-badge {{ .Priority }}">{{ .Priority }}</div>
-                <div class="card-actions">
-                    <a href="{{ .Link }}" target="_blank" class="btn-link">Купить</a>
-                    <form method="POST" action="/delete" style="display: inline;">
-                        <input type="hidden" name="id" value="{{ .ID }}">
-                        <button type="submit" class="btn-delete">❌</button>
-                    </form>
-                </div>
+    <div class="shell">
+        <nav class="topbar">
+            <a class="brand" href="/">Wishlist</a>
+            <div class="nav-links">
+                <a class="nav-link {{ if .IsOwn }}active{{ end }}" href="/">Мой список</a>
+                <a class="nav-link" href="/users">Люди</a>
             </div>
+            <div class="account">
+                <span class="avatar">{{ initial .CurrentUser.Username }}</span>
+                <a href="{{ profileURL .CurrentUser.Username }}">{{ .CurrentUser.Username }}</a>
+                <form method="POST" action="/logout">
+                    <button class="text-btn" type="submit">Выйти</button>
+                </form>
+            </div>
+        </nav>
+
+        {{ if .Message }}<div class="notice success">{{ .Message }}</div>{{ end }}
+        {{ if .Error }}<div class="notice error">{{ .Error }}</div>{{ end }}
+
+        <header class="page-head reveal">
+            <div>
+                <p class="label">{{ if .IsOwn }}Личный профиль{{ else }}Публичный профиль{{ end }}</p>
+                <h1>{{ if .IsOwn }}Мой вишлист{{ else }}@{{ .Profile.Username }}{{ end }}</h1>
+                <p class="muted">
+                    {{ if .IsOwn }}Добавляй желания и открывай профили друзей.{{ else }}Смотри желания пользователя и подпишись, чтобы быстро возвращаться к его списку.{{ end }}
+                </p>
+            </div>
+
+            {{ if not .IsOwn }}
+            <form method="POST" action="{{ if .IsFollowing }}/unfollow{{ else }}/follow{{ end }}" class="follow-form">
+                <input type="hidden" name="username" value="{{ .Profile.Username }}">
+                <input type="hidden" name="next" value="{{ profileURL .Profile.Username }}">
+                <button class="primary-btn {{ if .IsFollowing }}light{{ end }}" type="submit">
+                    {{ if .IsFollowing }}Отписаться{{ else }}Подписаться{{ end }}
+                </button>
+            </form>
             {{ end }}
-        </div>
-        
-        <h2>Добавить желание</h2>
-        <form method="POST" action="/add" class="add-form">
-            <input type="text" name="name" placeholder="Название" required>
-            <input type="number" step="1" name="price" placeholder="Цена" required>
-            <input type="url" name="image_url" placeholder="URL картинки">
-            <input type="url" name="link" placeholder="Ссылка на товар">
-            <select name="priority">
-                <option value="high">Высокий</option>
-                <option value="medium">Средний</option>
-                <option value="low">Низкий</option>
-            </select>
-            <button type="submit">Добавить</button>
-        </form>
+        </header>
+
+        <section class="stats reveal">
+            <article>
+                <strong>{{ len .Items }}</strong>
+                <span>желаний</span>
+            </article>
+            <article>
+                <strong>{{ money .Total }}</strong>
+                <span>общая сумма</span>
+            </article>
+            <article>
+                <strong>@{{ .Profile.Username }}</strong>
+                <span>профиль</span>
+            </article>
+        </section>
+
+        <main class="layout">
+            <section class="main-panel reveal">
+                <div class="section-title">
+                    <h2>Список желаний</h2>
+                    {{ if .IsOwn }}<span>Только ты можешь редактировать этот список</span>{{ else }}<span>Режим просмотра</span>{{ end }}
+                </div>
+
+                {{ if eq (len .Items) 0 }}
+                <div class="empty-state">
+                    <h3>Пока пусто</h3>
+                    <p>{{ if .IsOwn }}Добавь первое желание через форму справа.{{ else }}У пользователя пока нет желаний.{{ end }}</p>
+                </div>
+                {{ else }}
+                <div class="wishlist-grid">
+                    {{ range .Items }}
+                    <article class="wish-card reveal">
+                        {{ if .ImageURL }}
+                        <a class="wish-image" {{ if .Link }}href="{{ .Link }}" target="_blank" rel="noopener noreferrer"{{ end }}>
+                            <img src="{{ .ImageURL }}" alt="{{ .Name }}" loading="lazy" onerror="this.parentElement.classList.add('image-error'); this.remove();">
+                        </a>
+                        {{ else }}
+                        <div class="wish-image placeholder"><span>{{ initial .Name }}</span></div>
+                        {{ end }}
+
+                        <div class="wish-body">
+                            <div class="wish-meta">
+                                <span class="priority priority-{{ .Priority }}">{{ priorityLabel .Priority }}</span>
+                                <span>{{ date .CreatedAt }}</span>
+                            </div>
+                            <h3>{{ .Name }}</h3>
+                            <p class="price">{{ money .Price }}</p>
+                            <div class="card-actions">
+                                {{ if .Link }}
+                                <a class="small-btn" href="{{ .Link }}" target="_blank" rel="noopener noreferrer">Открыть</a>
+                                {{ else }}
+                                <span class="small-btn disabled">Без ссылки</span>
+                                {{ end }}
+                                {{ if $.IsOwn }}
+                                <form method="POST" action="/delete">
+                                    <input type="hidden" name="id" value="{{ .ID }}">
+                                    <button class="danger-btn" type="submit" data-confirm="Удалить желание?">Удалить</button>
+                                </form>
+                                {{ end }}
+                            </div>
+                        </div>
+                    </article>
+                    {{ end }}
+                </div>
+                {{ end }}
+            </section>
+
+            <aside class="side-panel reveal">
+                {{ if .IsOwn }}
+                <section class="card add-card">
+                    <h2>Новое желание</h2>
+                    <form method="POST" action="/add" class="form" data-loading-form>
+                        <label>
+                            <span>Название</span>
+                            <input type="text" name="name" required placeholder="Например, клавиатура">
+                        </label>
+                        <div class="form-row">
+                            <label>
+                                <span>Цена</span>
+                                <input type="number" step="1" min="0" name="price" required placeholder="0">
+                            </label>
+                            <label>
+                                <span>Приоритет</span>
+                                <select name="priority" required>
+                                    <option value="medium">Средний</option>
+                                    <option value="high">Высокий</option>
+                                    <option value="low">Низкий</option>
+                                </select>
+                            </label>
+                        </div>
+                        <label>
+                            <span>Картинка</span>
+                            <input type="url" name="image_url" placeholder="https://...">
+                        </label>
+                        <label>
+                            <span>Ссылка</span>
+                            <input type="url" name="link" placeholder="https://...">
+                        </label>
+                        <button class="primary-btn full" type="submit">Добавить</button>
+                    </form>
+                </section>
+                {{ end }}
+
+                <section class="card">
+                    <div class="section-title compact">
+                        <h2>Подписки</h2>
+                        <a href="/users">Все люди</a>
+                    </div>
+                    {{ if eq (len .Following) 0 }}
+                    <p class="muted small">Ты пока ни на кого не подписан.</p>
+                    {{ else }}
+                    <div class="people-list">
+                        {{ range .Following }}
+                        <a class="person-row" href="{{ profileURL .Username }}">
+                            <span class="avatar small-avatar">{{ initial .Username }}</span>
+                            <span>
+                                <strong>@{{ .Username }}</strong>
+                                <em>{{ .ItemCount }} желаний · {{ money .Total }}</em>
+                            </span>
+                        </a>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                </section>
+            </aside>
+        </main>
     </div>
+
+    <script src="/static/app.js"></script>
 </body>
 </html>
